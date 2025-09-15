@@ -1,0 +1,12 @@
+mistral:
+  apiKey:
+
+gemini:
+  apiKey:
+
+db:
+  host: localhost
+  port: "5432"
+  user: postgres
+  password: password
+  name: example
