@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"genkit-examples/internal/agent"
 	"genkit-examples/internal/vectorstore"
+	"log"
+	"net/http"
 	"time"
 
 	"github.com/firebase/genkit/go/genkit"
+	"github.com/firebase/genkit/go/plugins/server"
 	"github.com/spf13/viper"
 	"github.com/thomas-marquis/genkit-mistral/mistral"
 	"github.com/thomas-marquis/genkit-mistral/mistralclient"
@@ -42,7 +45,11 @@ func main() {
 		panic(err)
 	}
 
-	agent.New(ctx, g, v)
+	a := agent.New(ctx, g, v)
 
-	select {}
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /ask", genkit.Handler(a.ChatFlow()))
+	if err := server.Start(ctx, "127.0.0.1:3400", mux); err != nil {
+		log.Fatal(err)
+	}
 }

@@ -77,7 +77,10 @@ func setupVectorStore(t *testing.T, ctx context.Context, vs *vectorstore.VectorS
 		t.Fatal("failed to insert test documents:", err)
 	}
 }
-func setupEmbedding(g *genkit.Genkit) {
+
+func setupEmbedding(t *testing.T, g *genkit.Genkit) {
+	t.Helper()
+
 	genkit.DefineEmbedder(g, "mistral/mistral-embed", &ai.EmbedderOptions{},
 		func(ctx context.Context, request *ai.EmbedRequest) (*ai.EmbedResponse, error) {
 			embeddings := make([]*ai.Embedding, len(request.Input))
@@ -110,13 +113,13 @@ func Test_ChatFlow(t *testing.T) {
 
 	setupVectorStore(t, ctx, vs)
 
-	// Mock embedder with fake embeddings (common for all tests)
-	setupEmbedding(g)
-
 	t.Run("should respond with text", func(t *testing.T) {
 		// Given
 		g := genkit.Init(ctx) // Create an empty Genkit instance, without any plugin to be sure we don't have side effects
 		a := agent.New(ctx, g, vs)
+
+		// Mock embedder with fake embeddings (common for all tests)
+		setupEmbedding(t, g)
 
 		// Mock model with a fake response. This fake model will be called by Genkit under the hood.
 		genkit.DefineModel(g, "mistral/mistral-small-latest",
@@ -139,6 +142,8 @@ func Test_ChatFlow(t *testing.T) {
 		// Given
 		g := genkit.Init(ctx)
 		a := agent.New(ctx, g, vs)
+
+		setupEmbedding(t, g)
 
 		genkit.DefineModel(g, "mistral/mistral-small-latest",
 			&ai.ModelOptions{Supports: &ai.ModelSupports{Multiturn: true}},

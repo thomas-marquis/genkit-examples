@@ -28,6 +28,10 @@ func New(ctx context.Context, g *genkit.Genkit, vecStore *vectorstore.VectorStor
 	}
 }
 
+func (a *Agent) ChatFlow() *core.Flow[ChatInput, ChatOutput, struct{}] {
+	return a.chatFlow
+}
+
 func (a *Agent) Ask(question string) (string, error) {
 	ctx := context.Background()
 	res, err := a.chatFlow.Run(ctx, ChatInput{Question: question})
