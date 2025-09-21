@@ -10,11 +10,11 @@ import (
 )
 
 type ChatInput struct {
-	Question string
+	Question string `json:"question"`
 }
 
 type ChatOutput struct {
-	Answer string
+	Answer string `json:"answer"`
 }
 
 func defineChatFlow(g *genkit.Genkit) *core.Flow[ChatInput, ChatOutput, struct{}] {

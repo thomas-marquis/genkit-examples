@@ -17,8 +17,8 @@ type VectorStore struct {
 	db *gorm.DB
 }
 
-func New(dsn string) (*VectorStore, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func New(connStr string) (*VectorStore, error) {
+	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
