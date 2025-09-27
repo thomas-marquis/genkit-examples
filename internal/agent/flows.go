@@ -32,10 +32,8 @@ func defineChatFlow(g *genkit.Genkit) *core.Flow[ChatInput, ChatOutput, struct{}
 		}
 
 		// Generate response
-		resp, err := genkit.Generate(ctx, g,
-			ai.WithModelName("mistral/mistral-small-latest"),
-			ai.WithSystem("you're a useful assistant, use only the provided documents to answer if they're relevant. Don't make up."),
-			ai.WithPrompt(input.Question),
+		resp, err := genkit.LookupPrompt(g, "rag-prompt").Execute(ctx,
+			ai.WithInput(ragPromptInput{Question: input.Question}),
 			ai.WithDocs(docs.Documents...),
 		)
 		if err != nil {

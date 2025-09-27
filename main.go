@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"genkit-examples/internal/agent"
+	"genkit-examples/internal/infrastructure"
 	"genkit-examples/internal/vectorstore"
 	"log"
 	"net/http"
@@ -45,7 +46,9 @@ func main() {
 		panic(err)
 	}
 
-	a := agent.New(ctx, g, v)
+	bookRepo := infrastructure.NewGoogleBookClient(10)
+
+	a := agent.New(ctx, g, v, bookRepo)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /ask", genkit.Handler(a.ChatFlow()))

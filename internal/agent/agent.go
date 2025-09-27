@@ -2,6 +2,7 @@ package agent
 
 import (
 	"context"
+	"genkit-examples/internal/book"
 	"genkit-examples/internal/vectorstore"
 	"log"
 
@@ -11,20 +12,24 @@ import (
 )
 
 type Agent struct {
-	g        *genkit.Genkit
-	ctx      context.Context
-	vecStore *vectorstore.VectorStore
-	chatFlow *core.Flow[ChatInput, ChatOutput, struct{}]
+	g              *genkit.Genkit
+	ctx            context.Context
+	vecStore       *vectorstore.VectorStore
+	chatFlow       *core.Flow[ChatInput, ChatOutput, struct{}]
+	bookRepository book.Repository
 }
 
-func New(ctx context.Context, g *genkit.Genkit, vecStore *vectorstore.VectorStore) *Agent {
+func New(ctx context.Context, g *genkit.Genkit, vecStore *vectorstore.VectorStore, bookRepository book.Repository) *Agent {
 	genkit.DefineRetriever(g, "book-retriever", &ai.RetrieverOptions{}, vecStore.MakeRetrieverHandler(g))
+	defineBookSearchTool(g, bookRepository)
+	defineRagPrompt(g)
 
 	return &Agent{
-		g:        g,
-		ctx:      ctx,
-		vecStore: vecStore,
-		chatFlow: defineChatFlow(g),
+		g:              g,
+		ctx:            ctx,
+		vecStore:       vecStore,
+		chatFlow:       defineChatFlow(g),
+		bookRepository: bookRepository,
 	}
 }
 
