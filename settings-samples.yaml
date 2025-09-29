@@ -10,3 +10,7 @@ db:
   user: postgres
   password: password
   name: example
+
+
+notion:
+  secretKey: 

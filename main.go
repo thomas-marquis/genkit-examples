@@ -48,7 +48,9 @@ func main() {
 
 	bookRepo := infrastructure.NewGoogleBookClient(10)
 
-	a := agent.New(ctx, g, v, bookRepo)
+	notionKey := viper.GetString("notion.secretKey")
+
+	a := agent.New(ctx, g, v, bookRepo, notionKey)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /ask", genkit.Handler(a.ChatFlow()))

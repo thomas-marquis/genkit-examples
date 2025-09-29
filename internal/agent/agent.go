@@ -2,6 +2,7 @@ package agent
 
 import (
 	"context"
+	"fmt"
 	"genkit-examples/internal/book"
 	"genkit-examples/internal/vectorstore"
 	"log"
@@ -9,6 +10,7 @@ import (
 	"github.com/firebase/genkit/go/ai"
 	"github.com/firebase/genkit/go/core"
 	"github.com/firebase/genkit/go/genkit"
+	"github.com/firebase/genkit/go/plugins/mcp"
 )
 
 type Agent struct {
@@ -17,12 +19,31 @@ type Agent struct {
 	vecStore       *vectorstore.VectorStore
 	chatFlow       *core.Flow[ChatInput, ChatOutput, struct{}]
 	bookRepository book.Repository
+	notionMcp      *mcp.GenkitMCPClient
 }
 
-func New(ctx context.Context, g *genkit.Genkit, vecStore *vectorstore.VectorStore, bookRepository book.Repository) *Agent {
+func New(ctx context.Context, g *genkit.Genkit, vecStore *vectorstore.VectorStore, bookRepository book.Repository, notionKey string) *Agent {
 	genkit.DefineRetriever(g, "book-retriever", &ai.RetrieverOptions{}, vecStore.MakeRetrieverHandler(g))
 	defineBookSearchTool(g, bookRepository)
-	defineRagPrompt(g)
+	mcpClient, err := defineNotionMcp(notionKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tools, err := mcpClient.GetActiveTools(ctx, g)
+	if err != nil {
+		log.Fatal(err)
+	}
+	toolRefs := make([]ai.ToolRef, len(tools))
+	for i, t := range tools {
+		toolRefs[i] = t
+	}
+	res, err := defineSmartFlow(g, toolRefs).Run(ctx, "Créee une page Notion dans le projet Genkit dans laquelle tu fera une introduction à la concurrence en go. Si la page existe déjà, met simplement à jour son contenu")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(res)
 
 	return &Agent{
 		g:              g,
@@ -30,6 +51,7 @@ func New(ctx context.Context, g *genkit.Genkit, vecStore *vectorstore.VectorStor
 		vecStore:       vecStore,
 		chatFlow:       defineChatFlow(g),
 		bookRepository: bookRepository,
+		notionMcp:      mcpClient,
 	}
 }
 
