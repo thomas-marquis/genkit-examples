@@ -13,4 +13,7 @@ db:
 
 
 notion:
-  secretKey: 
+  secretKey:
+
+todoist:
+  apiToken:

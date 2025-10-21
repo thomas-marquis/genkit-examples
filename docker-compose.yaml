@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: mydb
+      POSTGRES_DB: gollman
     ports:
       - "5432:5432"
     volumes:
