@@ -104,6 +104,11 @@ func defineChatFlow(g *genkit.Genkit, maxTurns int) *core.Flow[ChatInput, ChatOu
 			ai.WithDocs(docs.Documents...),
 			ai.WithTools(
 				genkit.LookupTool(g, "bookSearchTool"),
+				genkit.LookupTool(g, ""),
+				genkit.LookupTool(g, ""),
+				genkit.LookupTool(g, ""),
+				genkit.LookupTool(g, ""),
+				genkit.LookupTool(g, ""),
 			),
 			ai.WithMaxTurns(maxTurns),
 		)
