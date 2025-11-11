@@ -1,4 +1,4 @@
-package agent_test
+package chat_test
 
 import (
 	"context"

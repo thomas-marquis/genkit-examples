@@ -3,9 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"genkit-examples/internal/agent"
+	"genkit-examples/internal/agent/chat"
 	"genkit-examples/internal/infrastructure"
-	"genkit-examples/internal/vectorstore"
 	"log"
 	"net/http"
 	"time"
@@ -19,8 +18,7 @@ import (
 
 func main() {
 	viper.SetConfigFile("settings.yaml")
-	err := viper.ReadInConfig()
-	if err != nil {
+	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
 	}
 
@@ -41,20 +39,24 @@ func main() {
 		viper.GetString("db.port"),
 		viper.GetString("db.name"),
 	)
-	v, err := vectorstore.New(connStr)
+
+	bookRepo, err := infrastructure.NewBookRepositoryImpl(10, connStr)
 	if err != nil {
 		panic(err)
 	}
 
-	bookRepo := infrastructure.NewGoogleBookClient(10)
-
 	notionKey := viper.GetString("notion.secretKey")
-	todoistApiKey := viper.GetString("todoist.apiKey")
 
-	a := agent.New(ctx, g, v, bookRepo, notionKey, todoistApiKey)
+	c, err := chat.New(ctx, g, bookRepo,
+		chat.WithNotionApiKey(notionKey),
+		chat.WithLLM("mistral/mistral-medium-latest"),
+	)
+	if err != nil {
+		panic(err)
+	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /ask", genkit.Handler(a.ChatFlow()))
+	mux.HandleFunc("POST /chat", c.ToHandler())
 	if err := server.Start(ctx, "127.0.0.1:3400", mux); err != nil {
 		log.Fatal(err)
 	}

@@ -1,4 +1,4 @@
-package agent
+package chat
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/firebase/genkit/go/genkit"
 )
 
-func (a *Agent) Index(ctx context.Context, books []book.Book) error {
+func (f *Flow) IndexBooks(ctx context.Context, books []book.Book) error {
 	for i, b := range books {
 		log.Printf("Adding book #%d...", i)
 		chunks, err := b.Parse()
@@ -20,13 +20,13 @@ func (a *Agent) Index(ctx context.Context, books []book.Book) error {
 
 		if err := batchAndApply(chunks, 10, func(startIdx int, batch []*ai.Document) error {
 			log.Printf("Batch %d/%d...", startIdx, len(chunks))
-			embeddings, err := embedChunks(ctx, a.g, batch)
+			embeddings, err := embedChunks(ctx, f.g, batch, f.embeddingModelName)
 			if err != nil {
 				return fmt.Errorf("failed to embed documents for batch at start index %d: %w", startIdx, err)
 			}
 
 			log.Println("Embedding done, inserting chunks...")
-			if err := a.vecStore.InsertDocuments(ctx, b, batch, embeddings); err != nil {
+			if err := f.bookRepository.SaveDocuments(ctx, b.ID, batch, embeddings); err != nil {
 				return fmt.Errorf("failed to insert chunks for batch at start index %d: %w", startIdx, err)
 			}
 			return nil
@@ -40,17 +40,17 @@ func (a *Agent) Index(ctx context.Context, books []book.Book) error {
 	return nil
 }
 
-func embedChunks(ctx context.Context, g *genkit.Genkit, chunks []*ai.Document) ([]*ai.Embedding, error) {
-	embeddings := make([]*ai.Embedding, 0, len(chunks))
+func embedChunks(ctx context.Context, g *genkit.Genkit, chunks []*ai.Document, modelName string) ([][]float32, error) {
+	embeddings := make([][]float32, 0, len(chunks))
 	for _, chunk := range chunks {
 		res, err := genkit.Embed(ctx, g,
-			ai.WithEmbedderName("mistral/mistral-embed"),
+			ai.WithEmbedderName(modelName),
 			ai.WithDocs(chunk),
 		)
 		if err != nil {
 			return nil, err
 		}
-		embeddings = append(embeddings, res.Embeddings[0])
+		embeddings = append(embeddings, res.Embeddings[0].Embedding)
 	}
 
 	return embeddings, nil

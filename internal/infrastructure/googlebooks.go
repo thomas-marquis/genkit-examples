@@ -9,29 +9,8 @@ import (
 	"time"
 )
 
-type googleBookClient struct {
-	httpClient *http.Client
-	maxResults int
-}
-
-// NewGoogleBookClient creates a Google Books API client.
-// apiKey can be empty for public/unauthenticated requests.
-// maxResults controls how many results to return (1-40). Values outside this range are clamped.
-func NewGoogleBookClient(maxResults int) book.Repository {
-	if maxResults < 1 {
-		maxResults = 10
-	}
-	if maxResults > 40 {
-		maxResults = 40
-	}
-	return &googleBookClient{
-		httpClient: &http.Client{Timeout: 10 * time.Second},
-		maxResults: maxResults,
-	}
-}
-
 // Search implements Repository by querying the Google Books Volumes API.
-func (c *googleBookClient) Search(query string) ([]book.Book, error) {
+func (c *bookRepositoryImpl) Search(query string) ([]book.Book, error) {
 	if c.httpClient == nil {
 		c.httpClient = &http.Client{Timeout: 10 * time.Second}
 	}
