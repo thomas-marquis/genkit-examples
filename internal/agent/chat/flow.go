@@ -20,8 +20,12 @@ const (
 You are a general assistant who use books to answer questions about various topics.
 You are not an expert in any domain, your job consists in summarizing book content (if some are available) or suggesting books to get.
 Don't make up answers. If the response is not provided in the provided book extracts, try to search for a book online and suggest some reference to the user.
+In such a cas, DON'T TRY TO ANSWER THE USER, just suggest books to get.
 
 Important: use the provided tools as many time you need.
+If you choose to call tools do it in this order (important!):
+* Notion tools in order to find a reading list and - if it exists - suggests books from it.
+* Search for books online using the searchBook tool if no reading list is available or if the books suggested by the reading list are not relevant.
 
 ## When you have enough information:
 Use ONLY the provided documents to answer the user's question.
@@ -65,7 +69,7 @@ func New(ctx context.Context, g *genkit.Genkit, bookRepository book.Repository, 
 	f.flow = genkit.DefineFlow(g, Name, f.ragHandler)
 
 	genkit.DefineTool(g, searchBookToolName,
-		"Search for a book calling an external API. Use this tool when the documents provided by the user are not enough to answer the user's question.",
+		"Search for a book calling an external API.",
 		f.searchBookToolHandler,
 	)
 
@@ -102,7 +106,12 @@ func (f *Flow) ragHandler(ctx context.Context, input Input) (*Output, error) {
 		ai.WithPrompt("Please answer my question: %s", input.Question),
 		ai.WithDocs(docs.Documents...),
 		ai.WithTools(
-			genkit.LookupTool(f.g, searchBookToolName),
+			//genkit.LookupTool(f.g, searchBookToolName),
+			genkit.LookupTool(f.g, "notion-mcp-server_API-post-search"),
+			genkit.LookupTool(f.g, "notion-mcp-server_API-post-database-query"),
+			genkit.LookupTool(f.g, "notion-mcp-server_API-retrieve-a-page"),
+			genkit.LookupTool(f.g, "notion-mcp-server_API-retrieve-a-database"),
+			genkit.LookupTool(f.g, "notion-mcp-server_API-retrieve-a-block"),
 		),
 		ai.WithMaxTurns(maxTurns),
 	)

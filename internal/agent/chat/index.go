@@ -56,7 +56,7 @@ func embedChunks(ctx context.Context, g *genkit.Genkit, chunks []*ai.Document, m
 	return embeddings, nil
 }
 
-// batchAndApply splits the provided slice into batches of at most batchSize and the apply the provided function to each batch.
+// batchAndApply splits the provided slice into batches of at most batchSize and then apply the provided function to each batch.
 // The last batch may contain fewer elements. For non-positive batchSize, it defaults to 1.
 func batchAndApply[T any](data []T, batchSize int, fn func(int, []T) error) error {
 	if batchSize <= 0 {

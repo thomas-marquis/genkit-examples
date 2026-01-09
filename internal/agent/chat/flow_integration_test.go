@@ -3,7 +3,7 @@ package chat_test
 import (
 	"context"
 	"fmt"
-	"genkit-examples/internal/agent"
+	"genkit-examples/internal/agent/chat"
 	"genkit-examples/internal/book"
 	"genkit-examples/internal/vectorstore"
 	"testing"

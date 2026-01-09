@@ -13,7 +13,7 @@ import (
 	"github.com/firebase/genkit/go/plugins/server"
 	"github.com/spf13/viper"
 	"github.com/thomas-marquis/genkit-mistral/mistral"
-	"github.com/thomas-marquis/genkit-mistral/mistralclient"
+	mistralclient "github.com/thomas-marquis/mistral-client/mistral"
 )
 
 func main() {
@@ -27,10 +27,10 @@ func main() {
 	ctx := context.Background()
 	g := genkit.Init(ctx,
 		genkit.WithPlugins(
-			mistral.NewPlugin(mistralApiKey, mistral.WithClientConfig(
-				mistralclient.Config{ClientTimeout: 40 * time.Second})),
-		),
-	)
+			mistral.NewPlugin(mistralApiKey,
+				mistral.WithClientOptions(mistralclient.WithClientTimeout(40*time.Second)),
+			),
+		))
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
 		viper.GetString("db.user"),

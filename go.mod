@@ -1,11 +1,11 @@
 module genkit-examples
 
-go 1.24.6
+go 1.25.0
 
 require (
 	github.com/JohannesKaufmann/dom v0.2.0
 	github.com/JohannesKaufmann/html-to-markdown/v2 v2.4.0
-	github.com/firebase/genkit/go v1.1.0
+	github.com/firebase/genkit/go v1.2.0
 	github.com/lib/pq v1.10.9
 	github.com/pgvector/pgvector-go v0.3.0
 	github.com/spf13/viper v1.21.0
@@ -13,6 +13,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.39.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.39.0
 	github.com/thomas-marquis/genkit-mistral v0.5.0
+	github.com/thomas-marquis/mistral-client v0.2.0
 	github.com/timsims/pamphlet v0.1.6
 	github.com/tmc/langchaingo v0.1.13
 	golang.org/x/net v0.46.0
@@ -113,6 +114,7 @@ require (
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/text v0.30.0 // indirect
+	golang.org/x/time v0.14.0 // indirect
 	google.golang.org/grpc v1.75.0 // indirect
 	google.golang.org/protobuf v1.36.7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
