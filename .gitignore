@@ -34,3 +34,6 @@ go.work.sum
 /settings.yaml
 /.run
 /.genkit
+/temp.schema.json
+/temp2.json
+/temp.json

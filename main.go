@@ -2,8 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"genkit-examples/internal/agent/chat"
+	"genkit-examples/internal/agent"
 	"genkit-examples/internal/infrastructure"
 	"log"
 	"net/http"
@@ -27,36 +26,17 @@ func main() {
 	ctx := context.Background()
 	g := genkit.Init(ctx,
 		genkit.WithPlugins(
-			mistral.NewPlugin(mistralApiKey,
-				mistral.WithClientOptions(mistralclient.WithClientTimeout(40*time.Second)),
+			mistral.NewPlugin(mistralApiKey, mistral.WithClientOptions(
+				mistralclient.WithClientTimeout(45*time.Second)),
 			),
 		))
 
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
-		viper.GetString("db.user"),
-		viper.GetString("db.password"),
-		viper.GetString("db.host"),
-		viper.GetString("db.port"),
-		viper.GetString("db.name"),
-	)
+	glRepo := infrastructure.NewGroceryListRepositoryImpl()
 
-	bookRepo, err := infrastructure.NewBookRepositoryImpl(10, connStr)
-	if err != nil {
-		panic(err)
-	}
-
-	notionKey := viper.GetString("notion.secretKey")
-
-	c, err := chat.New(ctx, g, bookRepo,
-		chat.WithNotionApiKey(notionKey),
-		chat.WithLLM("mistral/mistral-medium-latest"),
-	)
-	if err != nil {
-		panic(err)
-	}
+	menuAgent := agent.NewMenuAgent(g, glRepo)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /chat", c.ToHandler())
+	mux.HandleFunc("POST /chat", genkit.Handler(menuAgent.Flow()))
 	if err := server.Start(ctx, "127.0.0.1:3400", mux); err != nil {
 		log.Fatal(err)
 	}
