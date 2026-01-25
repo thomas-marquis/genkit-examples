@@ -13,7 +13,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.39.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.39.0
 	github.com/thomas-marquis/genkit-mistral v0.5.0
-	github.com/thomas-marquis/mistral-client v0.2.0
+	github.com/thomas-marquis/mistral-client v0.3.0
 	github.com/timsims/pamphlet v0.1.6
 	github.com/tmc/langchaingo v0.1.13
 	golang.org/x/net v0.46.0

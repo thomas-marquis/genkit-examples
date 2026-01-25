@@ -32,7 +32,7 @@ Respect these rules:
 '
 `),
 		ai.WithPrompt(`{{input}}`),
-		ai.WithOutputType(menuPlannerInput{}))
+		ai.WithOutputType(preprocessorOutput{}))
 
 	return genkit.DefineFlow(g, "preprocessor", func(ctx context.Context, in string) (preprocessorOutput, error) {
 		res, err := prompt.Execute(ctx,
