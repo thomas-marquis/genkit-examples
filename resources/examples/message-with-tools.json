@@ -1,0 +1,16 @@
+{
+  "role": "assistant",
+  "tool_calls": [
+    {
+      "id": "ckVgECfxf",
+      "function": {
+        "name": "jokeFactory",
+        "arguments": "{\"topic\": \"why do we park in a drive way\"}"
+      },
+      "index": 0
+    }
+  ],
+  "content": ""
+}
+
+

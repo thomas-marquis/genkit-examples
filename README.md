@@ -10,12 +10,12 @@ This project is built with Firebase Genkit for defining AI flows, a custom retri
 
 ## Prerequisites
 
-- Go 1.24+ (see go.mod)
+- Go 1.25+ (see go.mod)
 - Docker (required for Postgres locally and also for running tests via Testcontainers)
 - curl (for trying the API)
 
 Optional but handy:
-- Genkit CLI (for the dev UI): npm i -g @genkit-ai/cli or see Genkit docs
+- Genkit CLI (for the dev UI): `curl -sL cli.genkit.dev | bash` or see Genkit docs
 
 ## Configuration
 

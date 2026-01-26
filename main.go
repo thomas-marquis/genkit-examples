@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"genkit-examples/internal/agent"
-	"genkit-examples/internal/vectorstore"
+	"genkit-examples/internal/agent/qna"
+	"genkit-examples/internal/infrastructure"
 	"log"
 	"net/http"
 	"time"
@@ -13,13 +13,12 @@ import (
 	"github.com/firebase/genkit/go/plugins/server"
 	"github.com/spf13/viper"
 	"github.com/thomas-marquis/genkit-mistral/mistral"
-	"github.com/thomas-marquis/genkit-mistral/mistralclient"
+	mistralclient "github.com/thomas-marquis/mistral-client/mistral"
 )
 
 func main() {
 	viper.SetConfigFile("settings.yaml")
-	err := viper.ReadInConfig()
-	if err != nil {
+	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
 	}
 
@@ -28,10 +27,10 @@ func main() {
 	ctx := context.Background()
 	g := genkit.Init(ctx,
 		genkit.WithPlugins(
-			mistral.NewPlugin(mistralApiKey, mistral.WithClientConfig(
-				mistralclient.Config{ClientTimeout: 40 * time.Second})),
-		),
-	)
+			mistral.NewPlugin(mistralApiKey,
+				mistral.WithClientOptions(mistralclient.WithClientTimeout(40*time.Second)),
+			),
+		))
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
 		viper.GetString("db.user"),
@@ -40,15 +39,18 @@ func main() {
 		viper.GetString("db.port"),
 		viper.GetString("db.name"),
 	)
-	v, err := vectorstore.New(connStr)
+
+	bookRepo, err := infrastructure.NewBookRepositoryImpl(10, connStr)
 	if err != nil {
 		panic(err)
 	}
 
-	a := agent.New(ctx, g, v)
+	todoistKey := viper.GetString("todoist.apiToken")
+
+	a := qna.New(g, bookRepo, todoistKey)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /ask", genkit.Handler(a.ChatFlow()))
+	mux.HandleFunc("POST /qna", a.ToHandler())
 	if err := server.Start(ctx, "127.0.0.1:3400", mux); err != nil {
 		log.Fatal(err)
 	}

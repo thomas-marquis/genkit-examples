@@ -10,3 +10,6 @@ db:
   user: postgres
   password: password
   name: example
+
+todoist:
+  apiToken:
