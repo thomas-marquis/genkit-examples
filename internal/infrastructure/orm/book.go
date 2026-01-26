@@ -1,7 +1,7 @@
 package orm
 
 import (
-	"genkit-examples/internal/book"
+	"genkit-examples/internal/domain/book"
 
 	"gorm.io/datatypes"
 )

@@ -3,7 +3,7 @@ package infrastructure
 import (
 	"encoding/json"
 	"fmt"
-	"genkit-examples/internal/book"
+	"genkit-examples/internal/domain/book"
 	"net/http"
 	"net/url"
 	"time"

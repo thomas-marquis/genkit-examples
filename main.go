@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"genkit-examples/internal/agent/chat"
+	"genkit-examples/internal/agent/qna"
 	"genkit-examples/internal/infrastructure"
 	"log"
 	"net/http"
@@ -45,18 +45,12 @@ func main() {
 		panic(err)
 	}
 
-	notionKey := viper.GetString("notion.secretKey")
+	todoistKey := viper.GetString("todoist.apiToken")
 
-	c, err := chat.New(ctx, g, bookRepo,
-		chat.WithNotionApiKey(notionKey),
-		chat.WithLLM("mistral/mistral-medium-latest"),
-	)
-	if err != nil {
-		panic(err)
-	}
+	a := qna.New(g, bookRepo, todoistKey)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /chat", c.ToHandler())
+	mux.HandleFunc("POST /qna", a.ToHandler())
 	if err := server.Start(ctx, "127.0.0.1:3400", mux); err != nil {
 		log.Fatal(err)
 	}

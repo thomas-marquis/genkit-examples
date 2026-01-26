@@ -11,9 +11,5 @@ db:
   password: password
   name: example
 
-
-notion:
-  secretKey:
-
 todoist:
   apiToken:

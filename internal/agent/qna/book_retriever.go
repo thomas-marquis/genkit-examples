@@ -1,8 +1,8 @@
-package chat
+package qna
 
 import (
 	"context"
-	"genkit-examples/internal/book"
+	"genkit-examples/internal/domain/book"
 
 	"github.com/firebase/genkit/go/ai"
 	"github.com/firebase/genkit/go/genkit"
@@ -12,23 +12,23 @@ const (
 	bookRetrieverName = "chatBookRetriever"
 )
 
-func (f *Flow) bookRetrieverHandler(ctx context.Context, request *ai.RetrieverRequest) (*ai.RetrieverResponse, error) {
+func (a *Agent) bookRetrieverHandler(ctx context.Context, request *ai.RetrieverRequest) (*ai.RetrieverResponse, error) {
 	var bookID string
 	if b, ok := request.Query.Metadata["book"].(*book.Book); ok {
 		bookID = b.ID
 	}
 
 	// Create the embedding vector corresponding to the user request
-	res, err := genkit.Embed(ctx, f.g,
+	res, err := genkit.Embed(ctx, a.g,
 		ai.WithDocs(request.Query),
-		ai.WithEmbedderName(f.embeddingModelName),
+		ai.WithEmbedderName("mistral/mistral-embed"),
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	// Retrieve documents accordingly
-	docs, err := f.bookRepository.SemanticSearch(ctx, bookID, res.Embeddings[0].Embedding, 10)
+	docs, err := a.bookRepository.SemanticSearch(ctx, bookID, res.Embeddings[0].Embedding, 10)
 	if err != nil {
 		return nil, err
 	}
